@@ -53,22 +53,32 @@ const props = defineProps<Props>();
 const favoriteStore = useFavoriteStore();
 const cartStore = useCartStore();
 
-const isFavorite = computed(() => favoriteStore.isFavorite(props.product.id));
-const isInCart = computed(() => cartStore.isInCart(props.product.id));
+const isFavorite = computed(() =>
+    props.product?.id ? favoriteStore.isFavorite(props.product.id) : false
+);
+
+const isInCart = computed(() =>
+    props.product?.id ? cartStore.isInCart(props.product.id) : false
+);
+
 const formattedPrice = computed(() => {
+    if (!props.product || typeof props.product.price !== 'number') {
+        return 'Цена не указана';
+    }
     return props.product.price.toLocaleString('ru-RU') + ' ₽';
 });
 
 const toggleFavorite = () => {
-    favoriteStore.toggleFavorite(props.product.id);
-    if (!isFavorite.value) {
-        toast.success('Удалено из избранного');
-    } else {
-        toast.success('Сохранено в избранное');
-    }
+    if (!props.product) return;
+
+    favoriteStore.toggleFavorite(props.product);
+    toast.success(isFavorite.value
+        ? 'Сохранено в избранное'
+        : 'Удалено из избранного');
 };
 
 const addToCart = () => {
+    if (!props.product) return;
     cartStore.addToCart(props.product);
 };
 </script>

@@ -5,8 +5,8 @@
         <div class="flex items-center px-6 py-3 border-b mb-6">
           <span class="truncate font-medium">Избранное</span>
         </div>
-        <div v-if="favoriteStore.items.length" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-
+        <div v-if="favoriteStore.items.length" class="px-4 flex flex-wrap gap-4">
+          <ResultCard :is-better="false" v-for="(card, index) in favoriteStore.items" :key="index" :product="card" />
         </div>
         <div v-else class="flex px-6 justify-center w-full">
           <div class="flex flex-col items-center py-10">
@@ -28,6 +28,7 @@
 
 <script lang="ts" setup>
 import ChatInfo from '@/components/other/ChatInfo.vue'
+import ResultCard from '@/components/results/ResultCard.vue';
 import { useFavoriteStore } from '@/stores/favoriteStore'
 
 const favoriteStore = useFavoriteStore()
