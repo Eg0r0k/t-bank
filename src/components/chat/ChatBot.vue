@@ -1,10 +1,16 @@
 <template>
-    <aside
-        class="max-w-[420px]  w-full bg-background overflow-hidden rounded-xl h-[calc(100vh-82px)] flex flex-col">
-        <ChatHead @close="appStore.closeChat" />
-        <ChatMain :messages="chatStore.messages" :is-thinking="chatStore.isThinking" />
-        <ChatInput />
-    </aside>
+  <aside
+    :class="!appStore.isInitChat ? 'max-w-[420px] ' : 'max-w-full'"
+    class="w-full bg-background overflow-hidden rounded-xl h-[calc(100vh-82px)] flex flex-col"
+  >
+    <ChatHead v-if="!appStore.isInitChat" @close="appStore.closeChat" />
+    <ChatMain
+      :is-init-chat="appStore.isInitChat"
+      :messages="chatStore.messages"
+      :is-thinking="chatStore.isThinking"
+    />
+    <ChatInput :is-thinking="chatStore.isThinking" />
+  </aside>
 </template>
 
 <script setup lang="ts">
@@ -13,13 +19,8 @@ import { useChatStore } from '@/stores/chatStore'
 import ChatMain from './ChatMain.vue'
 import ChatInput from './ChatInput.vue'
 import ChatHead from './ChatHead.vue'
-import { onMounted } from 'vue'
 
 const appStore = useAppStore()
 const chatStore = useChatStore()
 
-
-onMounted(() => {
-    console.log("rerendered")
-})
 </script>

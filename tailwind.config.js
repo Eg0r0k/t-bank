@@ -4,6 +4,9 @@ module.exports = {
   content: ['./index.html', './src/**/*.{ts,js,vue}'],
   theme: {
     extend: {
+      screens:{
+        'xs': '416px'
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
