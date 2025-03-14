@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 space-y-4" ref="messagesContainer">
+  <div class="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 space-y-4 no-scrollbar" ref="messagesContainer">
     <InitialChatGreeting v-if="isInitChat" />
     <template v-for="(msg, index) in chatStore.messages" :key="msg.id">
       <ChatMessage :message="msg" :index="index" @edit="handleEdit" @copy="handleCopy" @resend="handleResend" />
@@ -45,4 +45,3 @@ const handleResend = (id: string) => {
 
 
 </script>
-

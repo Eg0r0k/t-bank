@@ -32,18 +32,16 @@ import type { Message } from '@/stores/chatStore'
 import { Icon } from '@iconify/vue'
 import { useClipboard } from '@vueuse/core'
 import { ref } from 'vue'
-
 interface Props {
     message: Message
     isEditing: boolean
-    editText: string // Добавляем пропс с текстом
 }
 const props = defineProps<Props>()
 const emit = defineEmits<{
     (e: 'edit-start'): void
     (e: 'copy'): void
     (e: 'resend'): void
-    (e: 'edit-submit', text: string): void
+    (e: 'edit-submit'): void
 }>()
 
 
@@ -52,7 +50,8 @@ const { copy, isSupported } = useClipboard()
 const copied = ref(false)
 
 const handleEditSubmit = () => {
-    emit('edit-submit', props.editText)
+
+    emit('edit-submit')
 }
 
 

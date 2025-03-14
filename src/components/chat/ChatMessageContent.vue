@@ -1,18 +1,20 @@
 <template>
-    <template v-if="!isEditing || message.isAI">
-        {{ message.text }}
-    </template>
+    <div>
+        <template v-if="!isEditing || message.isAI">
+            {{ message.text }}
+        </template>
 
-    <template v-else>
-        <textarea ref="textareaRef" v-model="editText" @keyup.enter.prevent="handleSubmit"
-            class="bg-transparent outline-none text-white resize-y min-h-[140px] max-h-[250px] w-full overflow-y-auto pr-2"
-            style="white-space: pre-wrap; box-sizing: border-box;" />
-    </template>
+        <template v-else>
+            <textarea ref="textAreaRef" v-model="localEditText"
+                class="bg-transparent outline-none text-white resize-y min-h-[140px] max-h-[250px] w-full overflow-y-auto pr-2"
+                style="white-space: pre-wrap; box-sizing: border-box;" />
+        </template>
+    </div>
 </template>
 
 <script setup lang="ts">
 import type { Message } from '@/stores/chatStore';
-import { ref, watch, nextTick } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 
 interface Props {
     message: Message
@@ -20,22 +22,19 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-const emit = defineEmits<{
-    (e: 'edit-submit', text: string): void
-}>()
 
-const editText = ref(props.message.text)
-const textareaRef = ref<HTMLTextAreaElement | null>(null)
+
+const textAreaRef = ref<null | HTMLTextAreaElement>(null)
+const localEditText = defineModel<string>('editText', { required: true })
+
+
 
 watch(() => props.isEditing, async (newVal) => {
     if (newVal) {
         await nextTick()
-        textareaRef.value?.focus()
-        textareaRef.value?.setSelectionRange(editText.value.length, editText.value.length)
+        textAreaRef.value?.focus()
+        textAreaRef.value?.setSelectionRange(localEditText.value.length, localEditText.value.length)
     }
 })
 
-const handleSubmit = () => {
-    emit('edit-submit', editText.value.trim())
-}
 </script>
