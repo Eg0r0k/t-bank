@@ -1,14 +1,10 @@
 <template>
-  <aside
-    :class="!appStore.isInitChat ? 'max-w-[420px] ' : 'max-w-full'"
-    class="w-full bg-background overflow-hidden rounded-xl h-[calc(100vh-82px)] flex flex-col"
-  >
+  <aside :class="[
+    'w-full bg-background overflow-hidden rounded-xl h-[calc(100vh-82px)] flex flex-col',
+    appStore.isInitChat ? 'max-w-full' : 'max-w-[420px]'
+  ]">
     <ChatHead v-if="!appStore.isInitChat" @close="appStore.closeChat" />
-    <ChatMain
-      :is-init-chat="appStore.isInitChat"
-      :messages="chatStore.messages"
-      :is-thinking="chatStore.isThinking"
-    />
+    <ChatMain :is-init-chat="appStore.isInitChat" />
     <ChatInput :is-thinking="chatStore.isThinking" />
   </aside>
 </template>

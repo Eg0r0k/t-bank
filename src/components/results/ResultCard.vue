@@ -1,6 +1,6 @@
 <template>
     <div
-        class="w-full flex justify-end mib-h-full relative flex-col items-center  min-w-[350px] p-2 pt-4 bg-muted transition-shadow rounded-[20px]">
+        class="w-full flex justify-end max-w-fit mib-h-full relative flex-col items-center  min-w-[350px] p-2 pt-4 bg-muted transition-shadow rounded-[20px]">
         <img loading="lazy" draggable="false" class="mb-5 size-20 border rounded-[20px]"
             :src="props.product.imageUrl || '/img/missing.png'" />
         <div class="flex rounded-full items-center absolute top-3 left-2 bg-background px-2 py-1" v-if="props.isBetter">

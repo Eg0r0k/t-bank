@@ -1,19 +1,24 @@
 import { useSpeechRecognition } from '@vueuse/core'
 import { defineStore } from 'pinia'
-import { reactive, ref, watch } from 'vue'
+import { ref, watch, type Ref } from 'vue'
 import { AimlApiProvider, type AIProvider } from '@/api/apiProvider'
 import type { Product } from '@/components/results/ResultCard.vue'
+import { v4 as uuidv4 } from 'uuid'
 
 export interface Message {
+  id: string
   text: string
   isAI: boolean
 }
 
+const CLIPBOARD_TIMEOUT = 700
+const MAX_SPEECH_RESULT_LENGTH = 1000
+
 export const useChatStore = defineStore('chat', () => {
-  const messages = ref<Message[]>([])
+  const messages: Ref<Message[]> = ref([])
   const inputMessage = ref('')
   const isThinking = ref(false)
-
+  const copiedMessages = ref<Record<string, boolean>>({})
   const aiProvider: AIProvider = new AimlApiProvider()
 
   const cards = ref<Product[]>([
@@ -53,47 +58,99 @@ export const useChatStore = defineStore('chat', () => {
     lang: 'ru-RU',
     continuous: false,
   })
-  async function sendMessage() {
-    if (!inputMessage.value.trim() || isThinking.value) return
 
-    const userMessage = inputMessage.value.trim()
-    messages.value.push(reactive({ text: userMessage, isAI: false }))
-    inputMessage.value = ''
+  const messageActions = {
+    update(id: string, newText: string): void {
+      const message = messages.value.find((m) => m.id === id)
+      if (message && !message.isAI) {
+        message.text = newText
+      }
+    },
+
+    async resend(id: string): Promise<void> {
+      const index = messages.value.findIndex((m) => m.id === id)
+      if (index === -1 || messages.value[index].isAI) return
+
+      messages.value.splice(index + 1)
+      await sendMessage(messages.value[index].text)
+    },
+
+    async resendAi(id: string): Promise<void> {
+      const index = messages.value.findIndex((m) => m.id === id)
+      if (index === -1 || !messages.value[index].isAI) return
+
+      messages.value.splice(index, 1)
+      await sendMessage(messages.value[index - 1].text)
+    },
+  }
+
+  const clipboardActions = {
+    async copy(text: string, id: string): Promise<void> {
+      try {
+        await navigator.clipboard.writeText(text)
+        this.setCopiedStatus(id, true)
+        setTimeout(() => this.clearCopiedStatus(id), CLIPBOARD_TIMEOUT)
+      } catch (error) {
+        console.error('Ошибка копирования:', error)
+      }
+    },
+
+    setCopiedStatus(id: string, status: boolean): void {
+      copiedMessages.value[id] = status
+    },
+
+    clearCopiedStatus(id: string): void {
+      delete copiedMessages.value[id]
+    },
+  }
+
+  async function sendMessage(text?: string, replaceIndex?: number) {
+    const messageText = (text || inputMessage.value).trim()
+    if (!messageText || isThinking.value) return
+
+    if (!text) {
+      messages.value.push(createMessage(messageText, false))
+      inputMessage.value = ''
+    }
+
     isThinking.value = true
 
-    let aiMessage: Message | null = null
-    let aiIndex = -1
-
     try {
-      await aiProvider.sendMessage(messages.value, (chunk) => {
+      const aiIndex = replaceIndex !== undefined ? replaceIndex + 1 : messages.value.length
+      let aiMessage: Message | null = null
+
+      await aiProvider.sendMessage(messages.value.slice(0, aiIndex), (chunk) => {
         if (!aiMessage) {
-          aiMessage = reactive<Message>({ text: chunk, isAI: true })
-          messages.value.push(aiMessage)
-          aiIndex = messages.value.length - 1
-          isThinking.value = false
+          aiMessage = createMessage(chunk, true)
+          messages.value.splice(aiIndex, 0, aiMessage)
         } else {
-          messages.value[aiIndex].text += chunk
+          aiMessage.text += chunk
         }
       })
 
       if (!aiMessage) {
-        aiMessage = reactive<Message>({
-          text: 'Не удалось получить ответ',
-          isAI: true,
-        })
-        messages.value.push(aiMessage)
+        throw new Error('Пустой ответ ИИ')
       }
-    } catch (error: unknown) {
-      console.error(error)
-      messages.value.push({
-        text: 'Произошла ошибка при обработке запроса',
-        isAI: true,
-      })
+    } catch (error) {
+      console.error('Ошибка ИИ:', error)
+      const errorMessage = createMessage(
+        error instanceof Error ? error.message : 'Ошибка обработки запроса',
+        true,
+      )
+      const aiIndex = replaceIndex !== undefined ? replaceIndex + 1 : messages.value.length
+      messages.value.splice(aiIndex, 0, errorMessage)
     } finally {
       isThinking.value = false
     }
   }
 
+  function createMessage(text: string, isAI: boolean): Message {
+    return {
+      id: uuidv4(),
+      text,
+      isAI,
+    }
+  }
   const toggleRecording = () => {
     if (!isSupported.value) {
       alert('Голосовой ввод не поддерживается в вашем браузере')
@@ -106,19 +163,22 @@ export const useChatStore = defineStore('chat', () => {
       startRecognition()
     }
   }
-  watch(result, (newResult, oldResult) => {
-    if (newResult && newResult !== oldResult) {
-      inputMessage.value = newResult.slice(0, 1000)
+  watch(result, (newResult) => {
+    if (newResult) {
+      inputMessage.value = newResult.slice(0, MAX_SPEECH_RESULT_LENGTH)
     }
   })
+
   return {
     messages,
-
     inputMessage,
     isThinking,
-    isListening,
-    sendMessage,
+    copiedMessages,
     cards,
+    ...messageActions,
+    ...clipboardActions,
+    sendMessage,
     toggleRecording,
+    isListening,
   }
 })

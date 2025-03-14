@@ -7,7 +7,7 @@
         </KeepAlive>
       </Transition>
       <div v-if="!appStore.isInitChat" class="flex-1 overflow-auto bg-background rounded-xl">
-        <div class="flex flex-col justify-between px-6 py-3 min-w-0 w-full">
+        <!-- <div class="flex flex-col justify-between px-6 py-3 min-w-0 w-full">
           <span class="font-medium text-lg truncate mb-4">Результаты</span>
           <section class="mb-6">
             <div class="flex overflow-x-auto gap-4 pb-1 scrollbar-hide">
@@ -21,7 +21,7 @@
                 :is-better="true" />
             </div>
           </section>
-        </div>
+        </div> -->
       </div>
     </main>
   </div>

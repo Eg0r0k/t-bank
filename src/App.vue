@@ -2,10 +2,10 @@
   <HeaderMain />
   <RouterView />
   <Button @click.stop="appStore.openChat" variant="outline"
-    class="sm:hidden flex-inline fixed rounded-full shadow-md right-8 bottom-8 size-16 p-0">
+    class="sm:hidden flex-inline fixed rounded-full z-10 shadow-md right-8 bottom-8 size-16 p-0">
     <Icon icon="bi:stars" class="size-9" />
   </Button>
-  <Toaster class="pointer-events-auto" />
+  <Toaster class="pointer-events-auto z-0" />
  
 </template>
 <script setup lang="ts">
