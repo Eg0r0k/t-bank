@@ -1,43 +1,23 @@
 <template>
   <div class="sticky bottom-0 bg-background border-t px-6 py-4">
-    <div class="flex mb-2 flex-wrap gap-2">
-      <RoundedButton
-        v-for="prompt in startPropmpts"
-        :key="prompt.text"
-        variant="outline"
-        class="px-3 bg-muted border-none hover:bg-muted shadow-sm"
-        @click="handlePromptClick(prompt.text)"
-      >
+    <div class="flex mb-2 overflow-x-auto flex-wrap no-scrollbar p-1 gap-2">
+      <RoundedButton v-for="prompt in startPropmpts" :key="prompt.text" variant="outline"
+        class="px-3 bg-muted border-none hover:bg-muted shadow-sm" @click="handlePromptClick(prompt.text)">
         {{ prompt.text }}
       </RoundedButton>
     </div>
-    <form
-      @submit.prevent="handleSubmit"
-      class="flex flex-col h-[90x] bg-muted rounded items-end gap-2 relative"
-    >
-      <Textarea
-        class="flex-1 min-h-[90px] resize-none border-none shadow-none"
-        v-model="chatStore.inputMessage"
-        @keydown.enter="handleEnterKey"
-        placeholder="Что хотите найти?"
-        :disabled="chatStore.isListening"
-        maxlength="1000"
-      />
+    <form @submit.prevent="handleSubmit" class="flex flex-col h-[90x] bg-muted rounded items-end gap-2 relative">
+      <Textarea class="flex-1 min-h-[90px] resize-none border-none shadow-none" v-model="chatStore.inputMessage"
+        @keydown.enter="handleEnterKey" placeholder="Что хотите найти?" :disabled="chatStore.isListening"
+        maxlength="1000" />
       <div class="flex gap-1 absolute right-2 bottom-2">
-        <RoundedButton
-          type="button"
-          @click="handleButtonClick"
-          class="w-8 h-8 p-1 [&_svg]:size-5"
-          :variant="buttonVariant"
-        >
+        <RoundedButton type="button" @click="handleButtonClick" class="w-8 h-8 p-1 [&_svg]:size-5"
+          :variant="buttonVariant">
           <Icon :icon="currentIcon" />
         </RoundedButton>
       </div>
     </form>
-    <span
-      class="text-xs"
-      :class="{ 'text-red-500': isNearMaxLength, 'text-gray-500': !isNearMaxLength }"
-    >
+    <span class="text-xs" :class="{ 'text-red-500': isNearMaxLength, 'text-gray-500': !isNearMaxLength }">
       {{ chatStore.inputMessage.length }}/1000
     </span>
   </div>

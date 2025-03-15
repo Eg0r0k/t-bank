@@ -1,7 +1,7 @@
 <template>
-  <div class="w-full mb-2">
+  <div class="w-full mb-2 ">
     <main class="container gap-2 relative flex flex-row mx-auto w-full h-full overflow-hidden">
-      <Transition :name="animationName">
+      <Transition mode="out-in" :css="true" :name="animationName">
         <KeepAlive>
           <ChatBot :class="appStore.isInitChat ? 'z-20 ' : 'fixed sm:static z-20'" v-if="appStore.states.isChatOpen" />
         </KeepAlive>

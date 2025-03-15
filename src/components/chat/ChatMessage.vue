@@ -7,10 +7,8 @@
             : 'bg-primary text-white rounded-2xl rounded-tr-md'">
             <ChatMessageContent v-model:edit-text="editText" :message="message" :is-editing="isEditing"
                 @edit-submit="handleEditSubmit" />
-
-            <ChatMessageActions :message="message" :is-editing="isEditing"
-                @copy="handleCopy" @resend="handleResend" @edit-submit="handleEditSubmit"
-                @edit-start="handleEditStartTrigger" />
+            <ChatMessageActions :message="message" :is-editing="isEditing" :onCopy="handleCopy" :onResend="handleResend"
+                :onEditSubmit="handleEditSubmit" :onEditStart="handleEditStartTrigger" />
         </div>
     </div>
 </template>

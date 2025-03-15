@@ -1,10 +1,16 @@
 <template>
     <div v-if="message.isAI" class="flex gap-1 mt-3">
-        <Button variant="ghost" @click="handleCopy" class="p-0 size-7">
+        <Button variant="ghost" @click="handleCopy" class="p-0 size-7 hover:bg-primary-foreground">
             <Icon :icon="copied ? 'material-symbols:done-rounded' : 'tabler:clipboard'" class="size-4" />
         </Button>
-        <Button variant="ghost" @click="handleResend" class="p-0 size-7">
+        <Button variant="ghost" @click="onResend" class="p-0 size-7 hover:bg-primary-foreground">
             <Icon icon="mdi:reload" class="size-4" />
+        </Button>
+        <Button variant="ghost" class="p-0 size-7 hover:bg-primary-foreground">
+            <Icon icon="mdi:like-outline" class="size-4" />
+        </Button>
+        <Button variant="ghost" class="p-0 size-7 hover:bg-primary-foreground">
+            <Icon icon="mdi:dislike-outline" class="size-4" />
         </Button>
     </div>
 
@@ -15,12 +21,12 @@
                 class="p-0 size-7 bg-background text-foreground hover:bg-muted">
                 <Icon :icon="copied ? 'material-symbols:done-rounded' : 'tabler:clipboard'" class="size-4" />
             </Button>
-            <Button @click="handleEditStart" class="p-0 size-7 bg-background text-foreground hover:bg-muted">
+            <Button @click="onEditStart" class="p-0 size-7 bg-background text-foreground hover:bg-muted">
                 <Icon icon="mdi:pencil" class="size-4" />
             </Button>
         </template>
 
-        <Button v-else @click="handleEditSubmit" class="p-0 size-7 bg-background text-foreground hover:bg-muted">
+        <Button v-else @click="onEditSubmit" class="p-0 size-7 bg-background text-foreground hover:bg-muted">
             <Icon icon="mdi:check" class="size-4" />
         </Button>
     </div>
@@ -32,42 +38,23 @@ import type { Message } from '@/stores/chatStore'
 import { Icon } from '@iconify/vue'
 import { useClipboard } from '@vueuse/core'
 import { ref } from 'vue'
+
 interface Props {
     message: Message
     isEditing: boolean
+    onEditSubmit: () => void
+    onEditStart: () => void
+    onCopy: () => void
+    onResend: () => void
 }
 const props = defineProps<Props>()
-const emit = defineEmits<{
-    (e: 'edit-start'): void
-    (e: 'copy'): void
-    (e: 'resend'): void
-    (e: 'edit-submit'): void
-}>()
-
-
-
 const { copy, isSupported } = useClipboard()
 const copied = ref(false)
-
-const handleEditSubmit = () => {
-
-    emit('edit-submit')
-}
-
-
 
 const handleCopy = async () => {
     await copy(props.message.text)
     copied.value = true
     setTimeout(() => copied.value = false, 700)
-    emit('copy')
-}
-
-const handleEditStart = () => {
-    emit('edit-start')
-}
-
-const handleResend = () => {
-    emit('resend')
+    props.onCopy()
 }
 </script>
